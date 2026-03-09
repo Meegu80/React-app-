@@ -1,0 +1,26 @@
+============================================================================
+검색용 API 주소
+
+상세화면용 API 주소
+
+사용할 훅과 변수
+
+----------------------------------------------------------------------------------------------------------------------------------
+시작하며 설치해야할 패키지(모듈,라이브러리)
+
+pnpm install styled-components
+pnpm install react-router
+pnpm install @tanstack/react-query
+pnpm install react-hook-form
+pnpm install react-icons
+pnpm install -D prettier
+
+pnpm install -D prettier eslint-config-prettier eslint-plugin-prettier
+pnpm install -D @types/node @types/react @types/react-dom typescript typescript-eslint prettier
+----------------------------------------------------------------------------------------------------------------------------------
+설정 들어가서 노드지원 체크
+prettier 설정가서
+**/*.{js,ts,jsx,tsx,cjs,cts,mjs,mts,vue,astro,html,css,sass,scss}
+저장 시 실행 체크// 자동 경로 체크
+깃허브 커밋하기
+============================================================================
