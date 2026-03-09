@@ -1,0 +1,362 @@
+import React, { useState } from 'react';
+import styled from 'styled-components';
+
+// TypeScript 인터페이스 정의
+interface Todo {
+    id: number;
+    text: string;
+    createdAt: Date;
+}
+
+type View = 'list' | 'detail';
+
+// Styled Components
+const Container = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
+  padding: 2rem;
+`;
+
+const Card = styled.div`
+  max-width: 42rem;
+  margin: 0 auto;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+`;
+
+const Title = styled.h1`
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #4f46e5;
+  text-align: center;
+`;
+
+const InputContainer = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+`;
+
+const Input = styled.input`
+  flex: 1;
+  border: 2px solid #c7d2fe;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #4f46e5;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+`;
+
+const Button = styled.button<{ variant?: 'primary' | 'danger' }>`
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  ${props => props.variant === 'danger' ? `
+    background-color: #ef4444;
+    color: white;
+    &:hover {
+      background-color: #dc2626;
+    }
+  ` : `
+    background-color: #4f46e5;
+    color: white;
+    &:hover {
+      background-color: #4338ca;
+    }
+  `}
+`;
+
+const TodoList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const TodoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #eef2ff;
+  }
+`;
+
+const TodoText = styled.div`
+  flex: 1;
+  cursor: pointer;
+  color: #1f2937;
+  transition: color 0.2s;
+
+  ${TodoItem}:hover & {
+    color: #4f46e5;
+  }
+`;
+
+const DeleteButton = styled.button`
+  background-color: #ef4444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #dc2626;
+  }
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 3rem 0;
+  color: #9ca3af;
+  font-size: 1.125rem;
+`;
+
+const Stats = styled.div`
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+  color: #4b5563;
+  font-weight: 500;
+`;
+
+const StatsNumber = styled.span`
+  color: #4f46e5;
+  font-size: 1.25rem;
+  font-weight: bold;
+`;
+
+const BackButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #4338ca;
+  }
+`;
+
+const DetailContainer = styled.div`
+  background: linear-gradient(to bottom right, #faf5ff, #fce7f3);
+`;
+
+const DetailTitle = styled.h2`
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #9333ea;
+`;
+
+const DetailCard = styled.div`
+  background: linear-gradient(to right, #faf5ff, #fce7f3);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+`;
+
+const DetailLabel = styled.label`
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+`;
+
+const DetailValue = styled.p`
+  font-size: 1.125rem;
+  color: #1f2937;
+  font-weight: 500;
+  margin-bottom: 1rem;
+`;
+
+const DetailSmallValue = styled.p`
+  color: #6b7280;
+  font-family: monospace;
+  font-size: 0.875rem;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 0.75rem;
+`;
+
+const FullButton = styled(Button)`
+  flex: 1;
+`;
+
+function App() {
+    const [todo, setTodo] = useState<string>("");
+    const [todos, setTodos] = useState<Todo[]>([]);
+    const [currentView, setCurrentView] = useState<View>('list');
+    const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+
+    const handleSubmit = (): void => {
+        if (todo.trim() === "") {
+            return;
+        }
+        const newTodo: Todo = {
+            id: Date.now(),
+            text: todo,
+            createdAt: new Date()
+        };
+        setTodos([...todos, newTodo]);
+        setTodo("");
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+        if (e.key === 'Enter') {
+            handleSubmit();
+        }
+    };
+
+    const handleDelete = (id: number): void => {
+        setTodos(todos.filter(item => item.id !== id));
+    };
+
+    const handleTodoClick = (todo: Todo): void => {
+        setSelectedTodo(todo);
+        setCurrentView('detail');
+    };
+
+    const handleBackToList = (): void => {
+        setCurrentView('list');
+        setSelectedTodo(null);
+    };
+
+    // 목록 화면
+    if (currentView === 'list') {
+        return (
+            <Container>
+                <Card>
+                    <Title>📝 나의 Todo List</Title>
+
+                    <InputContainer>
+                        <Input
+                            value={todo}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTodo(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="할 일을 입력하세요"
+                        />
+                        <Button onClick={handleSubmit}>추가</Button>
+                    </InputContainer>
+
+                    <TodoList>
+                        {todos.map((item) => (
+                            <TodoItem key={item.id}>
+                                <TodoText onClick={() => handleTodoClick(item)}>
+                                    {item.text}
+                                </TodoText>
+                                <DeleteButton onClick={() => handleDelete(item.id)}>
+                                    삭제
+                                </DeleteButton>
+                            </TodoItem>
+                        ))}
+                    </TodoList>
+
+                    {todos.length === 0 && (
+                        <EmptyState>할 일을 추가해보세요! 🎯</EmptyState>
+                    )}
+
+                    <Stats>
+                        총 <StatsNumber>{todos.length}</StatsNumber>개의 할 일
+                    </Stats>
+                </Card>
+            </Container>
+        );
+    }
+
+    // 세부 화면
+    return (
+        <DetailContainer>
+            <Container>
+                <Card>
+                    <BackButton onClick={handleBackToList}>
+                        <span style={{ fontSize: '1.25rem' }}>←</span> 목록으로 돌아가기
+                    </BackButton>
+
+                    {selectedTodo && (
+                        <div>
+                            <DetailTitle>할 일 상세 정보</DetailTitle>
+
+                            <DetailCard>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <DetailLabel>할 일 내용</DetailLabel>
+                                    <DetailValue>{selectedTodo.text}</DetailValue>
+                                </div>
+
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <DetailLabel>생성 시간</DetailLabel>
+                                    <DetailSmallValue>
+                                        {selectedTodo.createdAt.toLocaleString('ko-KR', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </DetailSmallValue>
+                                </div>
+
+                                <div>
+                                    <DetailLabel>ID</DetailLabel>
+                                    <DetailSmallValue>{selectedTodo.id}</DetailSmallValue>
+                                </div>
+                            </DetailCard>
+
+                            <ButtonGroup>
+                                <FullButton onClick={handleBackToList}>
+                                    목록으로
+                                </FullButton>
+                                <FullButton
+                                    variant="danger"
+                                    onClick={() => {
+                                        handleDelete(selectedTodo.id);
+                                        handleBackToList();
+                                    }}
+                                >
+                                    삭제하기
+                                </FullButton>
+                            </ButtonGroup>
+                        </div>
+                    )}
+                </Card>
+            </Container>
+        </DetailContainer>
+    );
+}
+
+export default App;

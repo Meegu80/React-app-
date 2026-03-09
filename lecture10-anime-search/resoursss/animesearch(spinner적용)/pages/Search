@@ -1,0 +1,193 @@
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
+import styled from "styled-components";
+import AnimeCard from "../components/AnimeCard.tsx";
+
+export type Anime = {
+  mal_id: number;
+  images: {
+    jpg: {
+      image_url: string;
+    };
+  };
+  title: string;
+};
+
+type ApiResponse = {
+  data: Anime[];
+};
+
+/* 전체 화면을 세로로 나누는 레이아웃 */
+const Wrapper = styled.div`
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+/* 상단 고정 영역 */
+const FixedHeader = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #000000;
+  padding: 30px 30px 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+`;
+
+const Title = styled.h1`
+  //font-size: 32px;
+  text-align: center;
+  //margin-bottom: 24px;
+  font-size: 2.8rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ff6a00, #ee0979);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 15px rgba(238, 9, 121, 0.3);
+  animation: title-glow 3s ease-in-out infinite alternate;
+  
+`;
+
+/* 스크롤되는 영역 */
+const ScrollArea = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 30px;
+`;
+
+/* ⭐ 왼쪽 정렬 */
+const List = styled.div`
+  margin-top: 20px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  justify-content: flex-start;
+`;
+
+const Form = styled.form`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  gap: 10px;
+`;
+
+const Input = styled.input`
+  padding: 12px 18px;
+  width: 500px;
+  border-radius: 12px;
+  font-size: 16px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #333;
+`;
+
+const Button = styled.button`
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  background-color: #222222;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 16px;
+`;
+
+/* ⭐ 스피너 정중앙 고정 */
+const LoadingContainer = styled.div`
+  position: fixed;         /* ⭐ 브라우저 전체 기준 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999;            /* ⭐ 모든 요소 위 */
+  background-color: rgba(0, 0, 0, 0.4); /* ⭐ 선택 (반투명 배경) */
+`;
+
+const Spinner = styled.div`
+  width: 70px;
+  height: 70px;
+  border: 4px solid #333;
+  border-top: 4px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+function Search() {
+  const [params, setParams] = useSearchParams();
+  const keyword = params.get("keyword") || "";
+
+  const [result, setResult] = useState<Anime[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState(keyword);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`https://api.jikan.moe/v4/anime?q=${keyword}`)
+      .then(response => response.json())
+      .then((data: ApiResponse) => {
+        setResult(data.data);
+        setLoading(false);
+      });
+  }, [keyword]);
+
+  return (
+    <Wrapper>
+
+      {/* 🔥 상단 고정 영역 */}
+      <FixedHeader>
+        <Title>Search Anime</Title>
+
+        <Form
+          onSubmit={(event) => {
+            event.preventDefault();
+            setParams({ keyword: query });
+          }}
+        >
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={"Search Title..."}
+          />
+          <Button>Search</Button>
+        </Form>
+      </FixedHeader>
+
+      {/* 🔥 아래 스크롤되는 영역 */}
+      <ScrollArea>
+        {loading ? (
+          <LoadingContainer>
+            <Spinner />
+          </LoadingContainer>
+        ) : (
+          <List>
+            {result.map((item, index) => (
+              <AnimeCard
+                key={index}
+                id={item.mal_id}
+                title={item.title}
+                image={item.images.jpg.image_url}
+              />
+            ))}
+          </List>
+        )}
+      </ScrollArea>
+
+    </Wrapper>
+  );
+}
+
+export default Search;
