@@ -1,0 +1,21 @@
+.father {
+    display: flex;
+}
+
+.one {
+    background-color: teal;
+    width: 100px;
+    height: 100px;
+}
+
+.two {
+
+    background-color: tomato;
+    width: 100px;height: 100px;
+
+}
+
+.text {
+    color: white;
+
+}
