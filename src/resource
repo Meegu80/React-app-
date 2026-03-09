@@ -1,0 +1,24 @@
+    <Container>
+            <Title>Pokemon List</Title>
+            {loading ? (
+                <LoadingWrapper>Loading...</LoadingWrapper>
+            ) : (
+                <PokemonGrid>
+                    {list.map((item, index) => {
+                        const pokemonId = item.url.split('/').filter(Boolean).pop();
+                        return (
+                            <PokemonCard key={index}>
+                                <PokemonLink to={`/detail/${pokemonId}`}>
+                                    <PokemonImage
+                                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`}
+                                        alt={item.name}
+                                    />
+                                    <PokemonName>{item.name}</PokemonName>
+                                </PokemonLink>
+                            </PokemonCard>
+                        );
+                    })}
+                </PokemonGrid>
+            )}
+        </Container>
+    );
