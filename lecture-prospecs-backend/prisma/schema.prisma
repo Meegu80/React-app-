@@ -1,0 +1,331 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELED
+  RETURN_REQUESTED
+  RETURN_COMPLETED
+}
+
+enum PostCategory {
+  NOTICE // 공지사항
+  NEWS // 뉴스
+  EVENT // 이벤트
+}
+
+// 1:1 문의 유형
+enum InquiryType {
+  DELIVERY // 배송
+  PRODUCT // 상품
+  EXCHANGE_RETURN // 교환/반품
+  MEMBER // 회원관련
+  OTHER // 기타
+}
+
+// 1:1 문의 상태
+enum InquiryStatus {
+  PENDING // 답변 대기
+  ANSWERED // 답변 완료
+}
+
+// [신규] 1. 종류 (체크박스 필터용)
+enum ProductStyle {
+  RACING // 레이싱화
+  LIGHTWEIGHT_RACING // 경량레이싱화
+  STABILITY // 안정화
+  CUSHION // 쿠션화
+  TRAIL_RUNNING // 트레일러닝화
+  LONG_PANTS // 긴바지
+  LONG_SLEEVE // 긴팔티셔츠
+  DOWN // 다운
+  DOWN_VEST // 다운베스트
+  LEGGINGS // 레깅스
+  SLEEVELESS // 민소매
+  SHORT_PANTS // 반바지
+  SHORT_SLEEVE // 반팔티셔츠
+  VEST // 베스트
+  UNDERWEAR_TOP // 언더웨어상의
+  JACKET // 자켓
+  ZIPUP_LONG // 집업긴팔티셔츠
+  TRAINING_TOP // 트레이닝상의
+  TRAINING_BOTTOM // 트레이닝하의
+  HOODIE // 후드티셔츠
+  UNIFORM // 경기복
+  BASEBALL_SHOE // 야구화
+  AUTHENTIC_CAP // 어센틱모자
+}
+
+// [신규] 2. 성별 (상품 필터용)
+enum ProductGender {
+  MALE // 남성
+  FEMALE // 여성
+  COMMON // 성인공통
+}
+
+model MallSetting {
+  id                  Int      @id @default(autoincrement())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  deliveryInfo        String   @db.Text
+  returnPeriod        String
+  returnCoast         String
+  nonReturnableReason String   @db.Text
+  privacyPolicy       String   @db.Text
+  termOfService       String   @db.Text
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  email      String    @unique
+  password   String
+  role       Role      @default(USER)
+  name       String
+  birthdate  String
+  gender     Gender
+  phone      String
+  zipCode    String?
+  address1   String?
+  address2   String?
+  emailOptIn Boolean   @default(false)
+  smsOptIn   Boolean   @default(false)
+  orders     Order[]
+  cart       Cart?
+  reviews    Review[]
+  inquiries  Inquiry[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  path      String
+
+  parentId Int?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
+  products Product[]
+
+  @@unique([parentId, path]) // 같은 부모 아래에서는 path가 중복되면 안 됨 (복합 유니크 키 권장)
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  description String  @db.Text
+  summary     String? @db.Text
+  price       Int
+
+  isNew  Boolean @default(false)
+  isBest Boolean @default(false)
+
+  style  ProductStyle // 종류 (레이싱화, 자켓 등)
+  gender ProductGender // 성별 (남성, 여성, 공통)
+
+  material         String? // 소재
+  sizeInfo         String? // 사이즈정보
+  manufacturer     String? // 제조사
+  originCountry    String? // 제조국
+  careInstructions String? // 세탁방법 및 취급시 주의사항
+  manufactureDate  String? // 제조년월
+  qualityAssurance String? // 품질보증기준
+  asPhone          String? // A/S 책임자와 전화번호
+
+  categoryId Int
+  category   Category       @relation(fields: [categoryId], references: [id])
+  colors     ProductColor[]
+  Review     Review[]
+}
+
+model ProductColor {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  productCode String   @unique // 제품코드
+  colorName   String // 색상명
+  hexCode     String? // 색상칩
+  colorInfo   String? // 색상 상세 설명
+
+  productId Int
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  images    ProductImage[]
+  sizes     ProductSize[]
+}
+
+model ProductImage {
+  id             Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  url            String
+  productColorId Int
+  productColor   ProductColor @relation(fields: [productColorId], references: [id], onDelete: Cascade)
+}
+
+model ProductSize {
+  id    Int    @id @default(autoincrement())
+  size  String
+  stock Int
+
+  productColorId Int
+  productColor   ProductColor @relation(fields: [productColorId], references: [id], onDelete: Cascade)
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  userId    Int        @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+}
+
+model CartItem {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  quantity      Int         @default(1)
+  cartId        Int
+  cart          Cart        @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productSizeId Int
+  productSize   ProductSize @relation(fields: [productSizeId], references: [id])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  orderNumber String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  status      OrderStatus @default(PENDING)
+  totalAmount Int
+
+  recipientName   String
+  recipientPhone  String
+  zipCode         String
+  address1        String
+  address2        String
+  gatePassword    String? // 공동현관 비밀번호 (선택)
+  deliveryRequest String? // 배송 요청사항 (선택)
+
+  trackingNumber String? // 운송장 번호
+  carrier        String? // 택배사 (CJ대한통운, 우체국 등)
+
+  userId  Int
+  user    User        @relation(fields: [userId], references: [id])
+  items   OrderItem[]
+  payment Payment?
+}
+
+model OrderItem {
+  id            Int         @id @default(autoincrement())
+  quantity      Int
+  price         Int
+  orderId       Int
+  order         Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productSizeId Int
+  productSize   ProductSize @relation(fields: [productSizeId], references: [id])
+}
+
+model Payment {
+  id         Int     @id @default(autoincrement())
+  paymentKey String? @unique
+  orderId    Int     @unique
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  method      String
+  amount      Int
+  status      String
+  requestedAt DateTime  @default(now())
+  approvedAt  DateTime?
+}
+
+model Review {
+  id        Int           @id @default(autoincrement())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  rating    Int
+  content   String?
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product       @relation(fields: [productId], references: [id])
+  images    ReviewImage[]
+}
+
+model ReviewImage {
+  id       Int    @id @default(autoincrement())
+  url      String
+  reviewId Int
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  category    PostCategory @default(NOTICE)
+  title       String
+  content     String       @db.Text
+  viewCount   Int          @default(0)
+  isImportant Boolean      @default(false)
+  thumbnail   String?
+}
+
+model Faq {
+  id        Int    @id @default(autoincrement())
+  category  String // 예: "회원/정보", "주문/결제" (Enum으로 관리해도 되고 String으로 유연하게 해도 됨)
+  question  String
+  answer    String @db.Text
+  sortOrder Int    @default(0) // 노출 순서 정렬용
+}
+
+model Inquiry {
+  id         Int            @id @default(autoincrement())
+  type       InquiryType // 문의 유형
+  title      String
+  content    String         @db.Text
+  status     InquiryStatus  @default(PENDING)
+  answer     String?        @db.Text // 관리자 답변 내용
+  answeredAt DateTime? // 답변 일시
+  userId     Int
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images     InquiryImage[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model InquiryImage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  inquiryId Int
+  inquiry   Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+}
