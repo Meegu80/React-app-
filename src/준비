@@ -1,0 +1,41 @@
+
+검색용 API 주소
+https://api.jikan.moe/v4/anime?q=${keyword}
+
+상세화면용 API 주소
+https://api.jikan.moe/v4/anime/${id}
+
+=========================================
+사용할 훅과 변수
+
+
+
+zootopia
+
+insideout
+coco
+walle
+
+
+
+
+
+
+///////////////////////////////////////////////////////////
+시작하며
+설치해야할 패키지(모듈,라이브러리)
+pnpm install -D prettier
+pnpm install styled-components
+pnpm install react-router
+
+
+pnpm install -D @types/node @types/react @types/react-dom typescript typescript-eslint prettier
+
+
+
+설정 들어가서
+노드지원 체크
+프리티어 설정가서
+**/*.{js,ts,jsx,tsx,cjs,cts,mjs,mts,vue,astro,html,css,sass,scss}
+
+깃허브 커밋하기

@@ -1,0 +1,155 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import styled from "styled-components";
+import BackButton from "../components/Backbutton.tsx";
+
+type AnimeDetail = {
+  title: string;
+  synopsis: string;
+  year: number;
+  score: number;
+  images: {
+    jpg: {
+      large_image_url: string;
+    };
+  };
+};
+
+type ApiResponse = {
+  data: AnimeDetail;
+};
+
+/* 화면 상단 여백 추가 */
+const Wrapper = styled.div`
+  padding: 30px;
+  max-width: 1000px;
+  margin: 60px auto 0;   /* ← 상단 40px 여백 */
+  gap: 30px;
+  display: flex;
+`;
+
+const ImageBox = styled.div`
+  position: relative;
+  width: 50%;
+`;
+
+const BackButtonWrap = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+`;
+
+const Poster = styled.img`
+  width: 100%;
+  border-radius: 14px;
+  flex-shrink: 0;
+`;
+
+const Content = styled.div`
+  flex: 1;
+`;
+
+const Title = styled.h1`
+  font-size: 32px;
+  margin-bottom: 12px;
+`;
+
+const Info = styled.div`
+  opacity: 0.75;
+  margin-bottom: 20px;
+
+  p {
+    margin: 4px 0;
+  }
+`;
+
+const Synopsis = styled.p`
+  line-height: 1.65;
+  opacity: 0.9;
+`;
+
+/* 화면 전체를 덮는 검은 배경 로딩 */
+const LoadingContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.9); /* ← 진한 검은색 배경 */
+  z-index: 9999;
+`;
+
+const Spinner = styled.div`
+  width: 70px;
+  height: 70px;
+  border: 4px solid #ffffff;
+  border-top: 4px solid #555555;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+function Detail() {
+  const { id } = useParams();
+
+  const [anime, setAnime] = useState<AnimeDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`https://api.jikan.moe/v4/anime/${id}`)
+      .then((response) => response.json())
+      .then((data: ApiResponse) => {
+        setAnime(data.data);
+        setLoading(false);
+      });
+  }, [id]);
+
+  /* 로딩 화면 */
+  if (loading) {
+    return (
+      <LoadingContainer>
+        <Spinner />
+      </LoadingContainer>
+    );
+  }
+
+  if (!anime) return <p>Anime not found</p>;
+
+  return (
+    <Wrapper>
+      <ImageBox>
+        <BackButtonWrap>
+          <BackButton />
+        </BackButtonWrap>
+
+        <Poster src={anime.images.jpg.large_image_url} />
+      </ImageBox>
+
+      <Content>
+        <Title>{anime.title}</Title>
+        <Info>
+          <p>Year: {anime.year}</p>
+          <p>Score: {anime.score}</p>
+        </Info>
+        <Synopsis>{anime.synopsis}</Synopsis>
+      </Content>
+    </Wrapper>
+  );
+}
+
+export default Detail;

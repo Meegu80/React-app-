@@ -1,0 +1,550 @@
+// React + TypeScript
+// 원래 파일명 App.tsx
+
+import styled, { keyframes } from 'styled-components';
+
+// 애니메이션 정의
+const spin = keyframes`
+    to { transform: rotate(360deg); }
+`;
+
+const bounce = keyframes`
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+`;
+
+const pulse = keyframes`
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+`;
+
+const scale = keyframes`
+    0%, 100% { transform: scale(0); }
+    50% { transform: scale(1); }
+`;
+
+const wave = keyframes`
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1); }
+`;
+
+const flip = keyframes`
+    0% { transform: perspective(120px) rotateX(0deg) rotateY(0deg); }
+    50% { transform: perspective(120px) rotateX(-180deg) rotateY(0deg); }
+    100% { transform: perspective(120px) rotateX(-180deg) rotateY(-180deg); }
+`;
+
+// 스타일 컴포넌트
+const Container = styled.div`
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #0f172a, #1e293b);
+    padding: 2rem;
+`;
+
+const Title = styled.h1`
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    margin-bottom: 3rem;
+`;
+
+const Grid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+        grid-template-columns: repeat(5, 1fr);
+    }
+`;
+
+const SpinnerCard = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+`;
+
+const SpinnerBox = styled.div`
+    width: 96px;
+    height: 96px;
+    background-color: #334155;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+const Label = styled.p`
+    color: white;
+    font-size: 0.875rem;
+    text-align: center;
+`;
+
+// 스피너 컴포넌트들
+const Spinner1 = styled.div`
+    width: 48px;
+    height: 48px;
+    border: 4px solid #3b82f6;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: ${spin} 1s linear infinite;
+`;
+
+const Spinner2 = styled.div`
+    position: relative;
+    width: 48px;
+    height: 48px;
+
+    &::before, &::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 4px solid transparent;
+        border-radius: 50%;
+        animation: ${spin} 1.5s linear infinite;
+    }
+
+    &::before {
+        border-top-color: #a855f7;
+    }
+
+    &::after {
+        border-bottom-color: #ec4899;
+        animation-direction: reverse;
+    }
+`;
+
+const Spinner3 = styled.div`
+    display: flex;
+    gap: 0.5rem;
+`;
+
+const Dot = styled.div`
+    width: 12px;
+    height: 12px;
+    background-color: #10b981;
+    border-radius: 50%;
+    animation: ${bounce} 0.6s ease-in-out infinite;
+
+    &:nth-child(2) {
+        animation-delay: 0.1s;
+    }
+
+    &:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+`;
+
+const Spinner4 = styled.div`
+    display: flex;
+    gap: 0.5rem;
+`;
+
+const PulseDot = styled.div`
+    width: 12px;
+    height: 12px;
+    background-color: #f59e0b;
+    border-radius: 50%;
+    animation: ${pulse} 1s ease-in-out infinite;
+
+    &:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+`;
+
+const Spinner5 = styled.div`
+    width: 48px;
+    height: 48px;
+    border: 4px solid #ef4444;
+    border-radius: 50%;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    animation: ${spin} 0.8s linear infinite;
+`;
+
+const Spinner6 = styled.div`
+    width: 48px;
+    height: 48px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+`;
+
+const GridSquare = styled.div`
+    background-color: #8b5cf6;
+    animation: ${scale} 1s ease-in-out infinite;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+    &:nth-child(4) { animation-delay: 0.6s; }
+`;
+
+const Spinner7 = styled.div`
+    width: 48px;
+    height: 48px;
+    border: 4px solid #06b6d4;
+    border-radius: 50%;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    animation: ${spin} 1s linear infinite;
+`;
+
+const Spinner8 = styled.div`
+    display: flex;
+    gap: 4px;
+`;
+
+const Bar = styled.div`
+    width: 4px;
+    height: 32px;
+    background-color: #14b8a6;
+    animation: ${wave} 1s ease-in-out infinite;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.1s; }
+    &:nth-child(3) { animation-delay: 0.2s; }
+    &:nth-child(4) { animation-delay: 0.3s; }
+    &:nth-child(5) { animation-delay: 0.4s; }
+`;
+
+const Spinner9 = styled.div`
+    width: 48px;
+    height: 48px;
+    border: 6px solid #f43f5e;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: ${spin} 1.2s ease-in-out infinite;
+`;
+
+const Spinner10 = styled.div`
+    width: 10px;
+    height: 48px;
+    background-color: #f97316;
+    animation: ${flip} 2s ease-in-out infinite;
+`;
+
+const Spinner11 = styled.div`
+    width: 48px;
+    height: 48px;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 4px solid #facc15;
+        border-radius: 50%;
+        animation: ${pulse} 1s ease-in-out infinite;
+    }
+`;
+
+const Spinner12 = styled.div`
+    width: 48px;
+    height: 48px;
+    border: 4px solid transparent;
+    border-top-color: #84cc16;
+    border-right-color: #84cc16;
+    border-radius: 50%;
+    animation: ${spin} 1s linear infinite;
+`;
+
+const Spinner13 = styled.div`
+    display: flex;
+    gap: 8px;
+`;
+
+const Circle = styled.div`
+    width: 16px;
+    height: 16px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    animation: ${scale} 1.2s ease-in-out infinite;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+`;
+
+const Spinner14 = styled.div`
+    width: 48px;
+    height: 48px;
+    border: 5px solid #0ea5e9;
+    border-radius: 50%;
+    border-top-color: transparent;
+    border-left-color: transparent;
+    animation: ${spin} 0.6s linear infinite;
+`;
+
+const Spinner15 = styled.div`
+    width: 48px;
+    height: 48px;
+    background-color: #6366f1;
+    animation: ${pulse} 1.5s ease-in-out infinite;
+`;
+
+const Spinner16 = styled.div`
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: conic-gradient(transparent, #d946ef);
+    animation: ${spin} 1s linear infinite;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 8px;
+        background-color: #334155;
+        border-radius: 50%;
+    }
+`;
+
+const Spinner17 = styled.div`
+    width: 48px;
+    height: 8px;
+    background-color: #64748b;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+
+    &::after {
+        content: '';
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        background-color: #f472b6;
+        animation: ${keyframes`
+            0% { left: -50%; }
+            100% { left: 100%; }
+        `} 1s ease-in-out infinite;
+    }
+`;
+
+const Spinner18 = styled.div`
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    width: 48px;
+`;
+
+const SmallSquare = styled.div`
+    aspect-ratio: 1;
+    background-color: #fb923c;
+    animation: ${scale} 1.5s ease-in-out infinite;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.1s; }
+    &:nth-child(3) { animation-delay: 0.2s; }
+    &:nth-child(4) { animation-delay: 0.3s; }
+    &:nth-child(5) { animation-delay: 0.4s; }
+    &:nth-child(6) { animation-delay: 0.5s; }
+    &:nth-child(7) { animation-delay: 0.6s; }
+    &:nth-child(8) { animation-delay: 0.7s; }
+    &:nth-child(9) { animation-delay: 0.8s; }
+`;
+
+const Spinner19 = styled.div`
+    width: 48px;
+    height: 48px;
+    border: 4px solid #fbbf24;
+    border-radius: 10px;
+    animation: ${spin} 2s ease-in-out infinite;
+`;
+
+const Spinner20 = styled.div`
+    width: 48px;
+    height: 48px;
+    position: relative;
+
+    &::before, &::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 4px solid #a78bfa;
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: ${keyframes`
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        `} 2s ease-out infinite;
+    }
+
+    &::after {
+        animation-delay: 1s;
+    }
+`;
+
+function App() {
+    return (
+        <Container>
+            <Title>20가지 로딩 스피너 컬렉션</Title>
+
+            <Grid>
+                {/* 1. 기본 원형 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner1 /></SpinnerBox>
+                    <Label>기본 원형</Label>
+                </SpinnerCard>
+
+                {/* 2. 코닉 그라데이션 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner16 /></SpinnerBox>
+                    <Label>코닉 그라데이션</Label>
+                </SpinnerCard>
+
+                {/* 3. 바운싱 점 */}
+                <SpinnerCard>
+                    <SpinnerBox>
+                        <Spinner3>
+                            <Dot /><Dot /><Dot />
+                        </Spinner3>
+                    </SpinnerBox>
+                    <Label>바운싱 점</Label>
+                </SpinnerCard>
+
+                {/* 4. 스케일 서클 */}
+                <SpinnerCard>
+                    <SpinnerBox>
+                        <Spinner13>
+                            <Circle /><Circle /><Circle />
+                        </Spinner13>
+                    </SpinnerBox>
+                    <Label>스케일 서클</Label>
+                </SpinnerCard>
+
+                {/* 5. 펄스 점 */}
+                <SpinnerCard>
+                    <SpinnerBox>
+                        <Spinner4>
+                            <PulseDot /><PulseDot /><PulseDot />
+                        </Spinner4>
+                    </SpinnerBox>
+                    <Label>펄스 점</Label>
+                </SpinnerCard>
+
+                {/* 6. 프로그레스 바 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner17 /></SpinnerBox>
+                    <Label>프로그레스 바</Label>
+                </SpinnerCard>
+
+                {/* 7. 이중 원형 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner2 /></SpinnerBox>
+                    <Label>이중 원형</Label>
+                </SpinnerCard>
+
+                {/* 8. 웨이브 바 */}
+                <SpinnerCard>
+                    <SpinnerBox>
+                        <Spinner8>
+                            <Bar /><Bar /><Bar /><Bar /><Bar />
+                        </Spinner8>
+                    </SpinnerBox>
+                    <Label>웨이브 바</Label>
+                </SpinnerCard>
+
+                {/* 9. 빠른 스피너 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner14 /></SpinnerBox>
+                    <Label>빠른 스피너</Label>
+                </SpinnerCard>
+
+                {/* 10. 두꺼운 원형 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner9 /></SpinnerBox>
+                    <Label>두꺼운 원형</Label>
+                </SpinnerCard>
+
+                {/* 10. 그리드 스케일 - 독특하고 인기있음 */}
+                <SpinnerCard>
+                    <SpinnerBox>
+                        <Spinner6>
+                            <GridSquare /><GridSquare />
+                            <GridSquare /><GridSquare />
+                        </Spinner6>
+                    </SpinnerBox>
+                    <Label>그리드 스케일</Label>
+                </SpinnerCard>
+
+                {/* 11. 펄스 웨이브 - 우아한 효과 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner20 /></SpinnerBox>
+                    <Label>펄스 웨이브</Label>
+                </SpinnerCard>
+
+                {/* 12. 반원 스피너 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner5 /></SpinnerBox>
+                    <Label>반원 스피너</Label>
+                </SpinnerCard>
+
+                {/* 13. 양면 스피너 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner7 /></SpinnerBox>
+                    <Label>양면 스피너</Label>
+                </SpinnerCard>
+
+                {/* 14. 펄스 링 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner11 /></SpinnerBox>
+                    <Label>펄스 링</Label>
+                </SpinnerCard>
+
+                {/* 15. L자 스피너 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner12 /></SpinnerBox>
+                    <Label>L자 스피너</Label>
+                </SpinnerCard>
+
+                {/* 16. 9칸 그리드 */}
+                <SpinnerCard>
+                    <SpinnerBox>
+                        <Spinner18>
+                            <SmallSquare /><SmallSquare /><SmallSquare />
+                            <SmallSquare /><SmallSquare /><SmallSquare />
+                            <SmallSquare /><SmallSquare /><SmallSquare />
+                        </Spinner18>
+                    </SpinnerBox>
+                    <Label>9칸 그리드</Label>
+                </SpinnerCard>
+
+                {/* 18. 펄스 박스 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner15 /></SpinnerBox>
+                    <Label>펄스 박스</Label>
+                </SpinnerCard>
+
+                {/* 19. 회전 사각형 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner19 /></SpinnerBox>
+                    <Label>회전 사각형</Label>
+                </SpinnerCard>
+
+                {/* 20. 플립 바 */}
+                <SpinnerCard>
+                    <SpinnerBox><Spinner10 /></SpinnerBox>
+                    <Label>플립 바</Label>
+                </SpinnerCard>
+            </Grid>
+        </Container>
+    );
+}
+
+export default App;
