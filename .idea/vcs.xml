@@ -2,5 +2,12 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/homework251211" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lecture-05-recoil" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lecture-prospecs-backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lecture-react-prospecs-frontend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lecture-react-wetube-frontend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lecture-wetube-backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/my-own-accountbook" vcs="Git" />
   </component>
 </project>
